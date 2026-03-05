@@ -12,7 +12,7 @@ interface UserListProps {
 
 export function UserList({ searchQuery, onConversationReady }: UserListProps) {
     const { user: clerkUser } = useUser();
-    const allUsers = useQuery(api.users.getAllUsers) ?? [];
+    const allUsers = useQuery(api.users.getAllUsers);
     const currentUser = useQuery(
         api.users.getUser,
         clerkUser?.id ? { clerkId: clerkUser.id } : "skip"
@@ -20,7 +20,7 @@ export function UserList({ searchQuery, onConversationReady }: UserListProps) {
     const getOrCreate = useMutation(api.conversations.getOrCreateDirectConversation);
 
     // Filter out the current user and apply search
-    const filteredUsers = allUsers.filter((u) => {
+    const filteredUsers = (allUsers ?? []).filter((u) => {
         // Exclude self
         if (currentUser && u._id === currentUser._id) return false;
         // Apply search filter
@@ -43,18 +43,18 @@ export function UserList({ searchQuery, onConversationReady }: UserListProps) {
         }
     };
 
-    if (allUsers.length === 0) {
+    if (allUsers === undefined) {
         return (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                </div>
-                <p className="text-sm text-muted-foreground">Loading users…</p>
+            <div className="flex flex-col gap-0.5 mt-2">
+                {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="flex items-center gap-3 rounded-lg px-3 py-2.5 animate-pulse">
+                        <div className="h-10 w-10 shrink-0 rounded-full bg-muted" />
+                        <div className="flex-1 space-y-2 py-1">
+                            <div className="h-4 w-24 rounded bg-muted" />
+                            <div className="h-3 w-16 rounded bg-muted" />
+                        </div>
+                    </div>
+                ))}
             </div>
         );
     }
@@ -96,8 +96,8 @@ export function UserList({ searchQuery, onConversationReady }: UserListProps) {
                         {/* Online/offline dot */}
                         <span
                             className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-sidebar transition-colors ${u.online
-                                    ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.4)]"
-                                    : "bg-zinc-500"
+                                ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.4)]"
+                                : "bg-zinc-500"
                                 }`}
                         />
                     </div>

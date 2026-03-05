@@ -41,22 +41,34 @@ export function ConversationList({
     const conversations = useQuery(
         api.conversations.getMyConversations,
         currentUser?._id ? { userId: currentUser._id } : "skip"
-    ) ?? [];
+    );
 
     // Filter by search query (match other user's name)
-    const filtered = conversations.filter((c) => {
+    const filtered = (conversations ?? []).filter((c) => {
         if (!searchQuery) return true;
         return c.otherUser?.name
             ?.toLowerCase()
             .includes(searchQuery.toLowerCase());
     });
 
-    if (!currentUser) {
+    if (conversations === undefined || currentUser === undefined) {
         return (
-            <div className="flex items-center justify-center py-8">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <div className="flex flex-col gap-0.5 px-2 py-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="flex items-center gap-3 rounded-lg px-2 py-3 animate-pulse">
+                        <div className="h-11 w-11 shrink-0 rounded-full bg-muted" />
+                        <div className="flex-1 space-y-2 py-1">
+                            <div className="h-4 w-24 rounded bg-muted" />
+                            <div className="h-3 w-3/4 rounded bg-muted" />
+                        </div>
+                    </div>
+                ))}
             </div>
         );
+    }
+
+    if (currentUser === null) {
+        return null; // Or some fallback if user isn't found in Convex
     }
 
     if (filtered.length === 0) {

@@ -9,6 +9,7 @@ import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 interface ChatWindowProps {
     conversationId?: string;
@@ -75,7 +76,7 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
         conversationId
             ? { conversationId: conversationId as Id<"conversations"> }
             : "skip"
-    ) ?? [];
+    );
 
     const typingUsers = useQuery(
         api.typing.getTyping,
@@ -96,7 +97,7 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
         (t) => t && currentUser && t.userId !== currentUser._id
     );
 
-    const sortedMessages = [...messages]
+    const sortedMessages = (messages ?? [])
         .sort((a, b) => a.createdAt - b.createdAt);
 
     // ── Scroll Detection ─────────────────────────────────
@@ -219,6 +220,15 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
                                 </p>
                             </div>
                         </>
+                    ) : conversationId ? (
+                        <>
+                            {/* Header Skeleton */}
+                            <div className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-muted" />
+                            <div className="space-y-2 py-1">
+                                <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+                                <div className="h-3 w-16 animate-pulse rounded bg-muted" />
+                            </div>
+                        </>
                     ) : (
                         <>
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
@@ -239,77 +249,88 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
 
             {/* Messages area */}
             <div className="relative flex-1">
-                <div
-                    ref={scrollContainerRef}
-                    className="absolute inset-0 overflow-y-auto scrollbar-thin px-4 md:px-6 py-4"
-                >
-                    {conversationId ? (
-                        <div className="mx-auto flex max-w-2xl flex-col gap-2">
-                            {sortedMessages.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-20 text-center">
-                                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
-                                            <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-                                        </svg>
+                <ErrorBoundary>
+                    <div
+                        ref={scrollContainerRef}
+                        className="absolute inset-0 overflow-y-auto scrollbar-thin px-4 md:px-6 py-4"
+                    >
+                        {conversationId ? (
+                            <div className="mx-auto flex max-w-2xl flex-col gap-2">
+                                {messages === undefined ? (
+                                    // Message Skeletons
+                                    <div className="flex flex-col gap-4 p-4">
+                                        {[1, 2, 3].map((i) => (
+                                            <div key={i} className={`flex w-full ${i % 2 === 0 ? "justify-end" : "justify-start"}`}>
+                                                <div className={`h-12 w-2/3 animate-pulse rounded-2xl bg-muted/60 ${i % 2 === 0 ? "rounded-br-sm" : "rounded-bl-sm"}`} />
+                                            </div>
+                                        ))}
                                     </div>
-                                    <p className="text-sm font-medium text-foreground">
-                                        No messages yet
-                                    </p>
-                                    <p className="mt-1 text-xs text-muted-foreground">
-                                        Send a message to start the conversation
-                                    </p>
-                                </div>
-                            ) : (
-                                sortedMessages.map((msg) => (
-                                    <MessageBubble
-                                        key={msg._id}
-                                        messageId={msg._id}
-                                        message={msg.content}
-                                        isOwn={currentUser?._id === msg.senderId}
-                                        timestamp={msg.createdAt}
-                                        deleted={msg.deleted}
-                                        onDelete={handleDeleteMessage}
-                                        reactions={reactionsMap[msg._id]}
-                                        currentUserId={currentUser?._id}
-                                        onToggleReaction={handleToggleReaction}
-                                    />
-                                ))
-                            )}
-
-                            {/* Typing indicator */}
-                            {othersTyping.length > 0 && (
-                                <div className="flex w-full justify-start">
-                                    <div className="flex items-center gap-2 rounded-2xl rounded-bl-md bg-muted px-4 py-3">
-                                        <span className="text-xs text-muted-foreground">
-                                            {othersTyping.map((t) => t?.name).join(", ")}
-                                            {othersTyping.length === 1 ? " is" : " are"} typing
-                                        </span>
-                                        {/* Animated dots */}
-                                        <span className="flex items-center gap-0.5">
-                                            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "0ms" }} />
-                                            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "150ms" }} />
-                                            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "300ms" }} />
-                                        </span>
+                                ) : sortedMessages.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                                        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+                                                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+                                            </svg>
+                                        </div>
+                                        <p className="text-sm font-medium text-foreground">
+                                            No messages yet
+                                        </p>
+                                        <p className="mt-1 text-xs text-muted-foreground">
+                                            Send a message to start the conversation
+                                        </p>
                                     </div>
-                                </div>
-                            )}
+                                ) : (
+                                    sortedMessages.map((msg) => (
+                                        <MessageBubble
+                                            key={msg._id}
+                                            messageId={msg._id}
+                                            message={msg.content}
+                                            isOwn={currentUser?._id === msg.senderId}
+                                            timestamp={msg.createdAt}
+                                            deleted={msg.deleted}
+                                            onDelete={handleDeleteMessage}
+                                            reactions={reactionsMap[msg._id]}
+                                            currentUserId={currentUser?._id}
+                                            onToggleReaction={handleToggleReaction}
+                                        />
+                                    ))
+                                )}
 
-                            {/* Invisible anchor for auto-scroll */}
-                            <div ref={messagesEndRef} />
-                        </div>
-                    ) : (
-                        <div className="flex h-full flex-col items-center justify-center gap-3">
-                            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
-                                    <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-                                </svg>
+                                {/* Typing indicator */}
+                                {othersTyping.length > 0 && (
+                                    <div className="flex w-full justify-start">
+                                        <div className="flex items-center gap-2 rounded-2xl rounded-bl-md bg-muted px-4 py-3">
+                                            <span className="text-xs text-muted-foreground">
+                                                {othersTyping.map((t) => t?.name).join(", ")}
+                                                {othersTyping.length === 1 ? " is" : " are"} typing
+                                            </span>
+                                            {/* Animated dots */}
+                                            <span className="flex items-center gap-0.5">
+                                                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "0ms" }} />
+                                                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "150ms" }} />
+                                                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "300ms" }} />
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Invisible anchor for auto-scroll */}
+                                <div ref={messagesEndRef} />
                             </div>
-                            <p className="text-muted-foreground">
-                                Select a conversation to start messaging
-                            </p>
-                        </div>
-                    )}
-                </div>
+                        ) : (
+                            <div className="flex h-full flex-col items-center justify-center gap-3">
+                                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+                                        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+                                    </svg>
+                                </div>
+                                <p className="text-muted-foreground">
+                                    Select a conversation to start messaging
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </ErrorBoundary>
 
                 {/* ↓ New messages floating button */}
                 {showNewMessagesButton && (
