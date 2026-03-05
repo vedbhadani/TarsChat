@@ -40,9 +40,20 @@ export const send = mutation({
 });
 
 export const remove = mutation({
-    args: { messageId: v.id("messages") },
+    args: {
+        messageId: v.id("messages"),
+        senderId: v.id("users"),
+    },
     handler: async (ctx, args) => {
-        await ctx.db.patch(args.messageId, { deleted: true });
+        const message = await ctx.db.get(args.messageId);
+        if (!message) throw new Error("Message not found");
+        if (message.senderId !== args.senderId) {
+            throw new Error("You can only delete your own messages");
+        }
+        await ctx.db.patch(args.messageId, {
+            deleted: true,
+            content: "",
+        });
     },
 });
 

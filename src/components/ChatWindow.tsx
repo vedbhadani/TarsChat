@@ -32,6 +32,16 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
     );
 
     const markRead = useMutation(api.messages.markRead);
+    const deleteMessage = useMutation(api.messages.remove);
+
+    // Delete handler passed to MessageBubble
+    const handleDeleteMessage = useCallback(
+        (messageId: Id<"messages">) => {
+            if (!currentUser?._id) return;
+            deleteMessage({ messageId, senderId: currentUser._id }).catch(console.error);
+        },
+        [deleteMessage, currentUser?._id]
+    );
 
     const conversation = useQuery(
         api.conversations.get,
@@ -69,7 +79,6 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
     );
 
     const sortedMessages = [...messages]
-        .filter((m) => !m.deleted)
         .sort((a, b) => a.createdAt - b.createdAt);
 
     // ── Scroll Detection ─────────────────────────────────
@@ -236,9 +245,12 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
                                 sortedMessages.map((msg) => (
                                     <MessageBubble
                                         key={msg._id}
+                                        messageId={msg._id}
                                         message={msg.content}
                                         isOwn={currentUser?._id === msg.senderId}
                                         timestamp={msg.createdAt}
+                                        deleted={msg.deleted}
+                                        onDelete={handleDeleteMessage}
                                     />
                                 ))
                             )}
