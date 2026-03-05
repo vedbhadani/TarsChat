@@ -81,8 +81,8 @@ export function ConversationList({
                         key={conv._id}
                         onClick={() => onSelectConversation(conv._id)}
                         className={`group flex items-center gap-3 rounded-lg px-3 py-3 text-left transition-all active:scale-[0.98] ${isActive
-                                ? "bg-primary/10 ring-1 ring-primary/20"
-                                : "hover:bg-sidebar-accent"
+                            ? "bg-primary/10 ring-1 ring-primary/20"
+                            : "hover:bg-sidebar-accent"
                             }`}
                     >
                         {/* Avatar with online indicator */}
@@ -106,22 +106,29 @@ export function ConversationList({
                         {/* Name and message preview */}
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center justify-between gap-2">
-                                <p className="truncate text-sm font-medium text-sidebar-foreground">
+                                <p className={`truncate text-sm font-medium ${conv.unreadCount > 0 ? "text-foreground font-bold" : "text-sidebar-foreground"}`}>
                                     {conv.otherUser?.name ?? "Unknown User"}
                                 </p>
                                 {conv.lastMessage && (
-                                    <span className="shrink-0 text-[10px] text-muted-foreground">
+                                    <span className={`shrink-0 text-[10px] ${conv.unreadCount > 0 ? "text-primary font-semibold" : "text-muted-foreground"}`}>
                                         {formatTime(conv.lastMessage.createdAt)}
                                     </span>
                                 )}
                             </div>
-                            <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                                {conv.lastMessage
-                                    ? conv.lastMessage.senderId === currentUser._id
-                                        ? `You: ${conv.lastMessage.content}`
-                                        : conv.lastMessage.content
-                                    : "No messages yet"}
-                            </p>
+                            <div className="flex items-center justify-between gap-2 mt-0.5">
+                                <p className={`truncate text-xs ${conv.unreadCount > 0 ? "text-foreground font-medium" : "text-muted-foreground"}`}>
+                                    {conv.lastMessage
+                                        ? conv.lastMessage.senderId === currentUser._id
+                                            ? `You: ${conv.lastMessage.content}`
+                                            : conv.lastMessage.content
+                                        : "No messages yet"}
+                                </p>
+                                {conv.unreadCount > 0 && (
+                                    <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                                        {conv.unreadCount > 99 ? "99+" : conv.unreadCount}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </button>
                 );

@@ -3,7 +3,7 @@
 import { MessageBubble } from "@/components/MessageBubble";
 import { MessageInput } from "@/components/MessageInput";
 import { formatRelativeTime } from "@/lib/utils";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { useUser } from "@clerk/nextjs";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
@@ -22,6 +22,9 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
         api.users.getUser,
         clerkUser?.id ? { clerkId: clerkUser.id } : "skip"
     );
+
+    // Mutations
+    const markRead = useMutation(api.messages.markRead);
 
     // Get the conversation details (to show the other user's info)
     const conversation = useQuery(
@@ -73,6 +76,16 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [sortedMessages.length, othersTyping.length]);
+
+    // Automatically mark messages as read when viewing the conversation
+    useEffect(() => {
+        if (conversationId && currentUser?._id) {
+            markRead({
+                conversationId: conversationId as Id<"conversations">,
+                userId: currentUser._id,
+            }).catch(console.error);
+        }
+    }, [conversationId, currentUser?._id, sortedMessages.length, markRead]);
 
     return (
         <div className="flex flex-1 flex-col bg-background">

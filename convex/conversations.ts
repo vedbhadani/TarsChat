@@ -48,7 +48,7 @@ export const getMyConversations = query({
                     ? await ctx.db.get(otherMemberIds[0])
                     : null;
 
-                // Get the latest message
+                // Get the latest message and calculate unread count
                 const messages = await ctx.db
                     .query("messages")
                     .withIndex("by_conversationId", (q) =>
@@ -60,6 +60,21 @@ export const getMyConversations = query({
                 const latestMessage = messages.length > 0
                     ? messages.sort((a, b) => b.createdAt - a.createdAt)[0]
                     : null;
+
+                // Find the current user's read receipt for this conversation
+                const readReceipt = await ctx.db
+                    .query("readReceipts")
+                    .withIndex("by_conversation_user", (q) =>
+                        q.eq("conversationId", conv._id).eq("userId", args.userId)
+                    )
+                    .unique();
+
+                const lastReadTime = readReceipt?.lastReadTime ?? 0;
+
+                // Count messages sent by others that are newer than lastReadTime
+                const unreadCount = messages.filter(
+                    (m) => m.senderId !== args.userId && m.createdAt > lastReadTime
+                ).length;
 
                 return {
                     _id: conv._id,
@@ -80,6 +95,7 @@ export const getMyConversations = query({
                             senderId: latestMessage.senderId,
                         }
                         : null,
+                    unreadCount,
                     // For sorting — use latest message time, or conversation creation time
                     sortKey: latestMessage?.createdAt ?? conv._creationTime,
                 };

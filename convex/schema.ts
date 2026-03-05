@@ -57,4 +57,12 @@ export default defineSchema({
     })
         // Indexing allows quick cleanup and efficient querying of typing users per conversation.
         .index("by_conversation_user", ["conversationId", "userId"]),
+
+    // ReadReceipts table tracks exactly when a user last looked at a conversation.
+    // This allows us to calculate how many messages they have missed.
+    readReceipts: defineTable({
+        userId: v.id("users"),
+        conversationId: v.id("conversations"),
+        lastReadTime: v.number(),
+    }).index("by_conversation_user", ["conversationId", "userId"]),
 });
