@@ -7,7 +7,7 @@ import { useQuery, useMutation } from "convex/react";
 import { useUser } from "@clerk/nextjs";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 interface ChatWindowProps {
@@ -17,18 +17,22 @@ interface ChatWindowProps {
 export function ChatWindow({ conversationId }: ChatWindowProps) {
     const { user: clerkUser } = useUser();
     const router = useRouter();
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // Get the current Convex user
+    // ── Scroll State ─────────────────────────────────────
+    const [isAtBottom, setIsAtBottom] = useState(true);
+    const [showNewMessagesButton, setShowNewMessagesButton] = useState(false);
+    const prevMessageCountRef = useRef(0);
+
+    // ── Convex Data ──────────────────────────────────────
     const currentUser = useQuery(
         api.users.getUser,
         clerkUser?.id ? { clerkId: clerkUser.id } : "skip"
     );
 
-    // Mutations
     const markRead = useMutation(api.messages.markRead);
 
-    // Get the conversation details (to show the other user's info)
     const conversation = useQuery(
         api.conversations.get,
         conversationId
@@ -36,19 +40,16 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
             : "skip"
     );
 
-    // Find the other member's ID
     const otherMemberId =
         conversation && currentUser
             ? conversation.members.find((m) => m !== currentUser._id)
             : undefined;
 
-    // We need to get all users so we can look up the other member
     const allUsers = useQuery(api.users.getAllUsers) ?? [];
     const otherUser = otherMemberId
         ? allUsers.find((u) => u._id === otherMemberId)
         : undefined;
 
-    // Real-time message subscription
     const messages = useQuery(
         api.messages.list,
         conversationId
@@ -56,7 +57,6 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
             : "skip"
     ) ?? [];
 
-    // Real-time typing indicator subscription
     const typingUsers = useQuery(
         api.typing.getTyping,
         conversationId
@@ -64,22 +64,69 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
             : "skip"
     ) ?? [];
 
-    // Filter out self from typing indicators
     const othersTyping = typingUsers.filter(
         (t) => t && currentUser && t.userId !== currentUser._id
     );
 
-    // Sort messages by createdAt
     const sortedMessages = [...messages]
         .filter((m) => !m.deleted)
         .sort((a, b) => a.createdAt - b.createdAt);
 
-    // Auto-scroll to newest message or when typing indicator appears
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [sortedMessages.length, othersTyping.length]);
+    // ── Scroll Detection ─────────────────────────────────
+    const checkIsAtBottom = useCallback(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return true;
+        const { scrollHeight, scrollTop, clientHeight } = container;
+        return scrollHeight - scrollTop - clientHeight < 100;
+    }, []);
 
-    // Automatically mark messages as read when viewing the conversation
+    const handleScroll = useCallback(() => {
+        const atBottom = checkIsAtBottom();
+        setIsAtBottom(atBottom);
+        // If user scrolls back down, hide the button
+        if (atBottom) {
+            setShowNewMessagesButton(false);
+        }
+    }, [checkIsAtBottom]);
+
+    // Attach scroll listener
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+        container.addEventListener("scroll", handleScroll, { passive: true });
+        return () => container.removeEventListener("scroll", handleScroll);
+    }, [handleScroll]);
+
+    // ── Smart Auto-Scroll on New Messages ────────────────
+    useEffect(() => {
+        const currentCount = sortedMessages.length;
+        const prevCount = prevMessageCountRef.current;
+
+        if (currentCount > prevCount && prevCount > 0) {
+            // New message(s) arrived
+            if (isAtBottom) {
+                // User is at the bottom — scroll to latest
+                messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            } else {
+                // User has scrolled up — show the floating button
+                setShowNewMessagesButton(true);
+            }
+        } else if (currentCount > 0 && prevCount === 0) {
+            // Initial load — jump to bottom instantly
+            messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+        }
+
+        prevMessageCountRef.current = currentCount;
+    }, [sortedMessages.length, isAtBottom]);
+
+    // Auto-scroll when typing indicator appears (if at bottom)
+    useEffect(() => {
+        if (isAtBottom && othersTyping.length > 0) {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [othersTyping.length, isAtBottom]);
+
+    // ── Mark as Read ─────────────────────────────────────
     useEffect(() => {
         if (conversationId && currentUser?._id) {
             markRead({
@@ -89,6 +136,13 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
         }
     }, [conversationId, currentUser?._id, sortedMessages.length, markRead]);
 
+    // ── Scroll-to-Bottom Handler ─────────────────────────
+    const scrollToBottom = useCallback(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        setShowNewMessagesButton(false);
+    }, []);
+
+    // ── Render ───────────────────────────────────────────
     return (
         <div className="flex flex-1 flex-col bg-background">
             {/* Header */}
@@ -157,66 +211,81 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
             </header>
 
             {/* Messages area */}
-            <div className="flex-1 overflow-y-auto scrollbar-thin px-6 py-4">
-                {conversationId ? (
-                    <div className="mx-auto flex max-w-2xl flex-col gap-2">
-                        {sortedMessages.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-20 text-center">
-                                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
-                                        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-                                    </svg>
+            <div className="relative flex-1">
+                <div
+                    ref={scrollContainerRef}
+                    className="absolute inset-0 overflow-y-auto scrollbar-thin px-4 md:px-6 py-4"
+                >
+                    {conversationId ? (
+                        <div className="mx-auto flex max-w-2xl flex-col gap-2">
+                            {sortedMessages.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-20 text-center">
+                                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+                                            <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+                                        </svg>
+                                    </div>
+                                    <p className="text-sm font-medium text-foreground">
+                                        No messages yet
+                                    </p>
+                                    <p className="mt-1 text-xs text-muted-foreground">
+                                        Send a message to start the conversation
+                                    </p>
                                 </div>
-                                <p className="text-sm font-medium text-foreground">
-                                    No messages yet
-                                </p>
-                                <p className="mt-1 text-xs text-muted-foreground">
-                                    Send a message to start the conversation
-                                </p>
-                            </div>
-                        ) : (
-                            sortedMessages.map((msg) => (
-                                <MessageBubble
-                                    key={msg._id}
-                                    message={msg.content}
-                                    isOwn={currentUser?._id === msg.senderId}
-                                    timestamp={msg.createdAt}
-                                />
-                            ))
-                        )}
+                            ) : (
+                                sortedMessages.map((msg) => (
+                                    <MessageBubble
+                                        key={msg._id}
+                                        message={msg.content}
+                                        isOwn={currentUser?._id === msg.senderId}
+                                        timestamp={msg.createdAt}
+                                    />
+                                ))
+                            )}
 
-                        {/* Typing indicator */}
-                        {othersTyping.length > 0 && (
-                            <div className="flex w-full justify-start">
-                                <div className="flex items-center gap-2 rounded-2xl rounded-bl-md bg-muted px-4 py-3">
-                                    <span className="text-xs text-muted-foreground">
-                                        {othersTyping.map((t) => t?.name).join(", ")}
-                                        {othersTyping.length === 1 ? " is" : " are"} typing
-                                    </span>
-                                    {/* Animated dots */}
-                                    <span className="flex items-center gap-0.5">
-                                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "0ms" }} />
-                                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "150ms" }} />
-                                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "300ms" }} />
-                                    </span>
+                            {/* Typing indicator */}
+                            {othersTyping.length > 0 && (
+                                <div className="flex w-full justify-start">
+                                    <div className="flex items-center gap-2 rounded-2xl rounded-bl-md bg-muted px-4 py-3">
+                                        <span className="text-xs text-muted-foreground">
+                                            {othersTyping.map((t) => t?.name).join(", ")}
+                                            {othersTyping.length === 1 ? " is" : " are"} typing
+                                        </span>
+                                        {/* Animated dots */}
+                                        <span className="flex items-center gap-0.5">
+                                            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "0ms" }} />
+                                            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "150ms" }} />
+                                            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "300ms" }} />
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {/* Invisible anchor for auto-scroll */}
-                        <div ref={messagesEndRef} />
-                    </div>
-                ) : (
-                    <div className="flex h-full flex-col items-center justify-center gap-3">
-                        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
-                                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-                            </svg>
+                            {/* Invisible anchor for auto-scroll */}
+                            <div ref={messagesEndRef} />
                         </div>
-                        <p className="text-muted-foreground">
-                            Select a conversation to start messaging
-                        </p>
-                    </div>
+                    ) : (
+                        <div className="flex h-full flex-col items-center justify-center gap-3">
+                            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+                                    <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+                                </svg>
+                            </div>
+                            <p className="text-muted-foreground">
+                                Select a conversation to start messaging
+                            </p>
+                        </div>
+                    )}
+                </div>
+
+                {/* ↓ New messages floating button */}
+                {showNewMessagesButton && (
+                    <button
+                        onClick={scrollToBottom}
+                        className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 active:scale-95"
+                    >
+                        ↓ New messages
+                    </button>
                 )}
             </div>
 
