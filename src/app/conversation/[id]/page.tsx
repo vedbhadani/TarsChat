@@ -10,12 +10,13 @@ export default async function ConversationPage({ params }: ConversationPageProps
 
     return (
         <div className="flex h-screen overflow-hidden bg-background">
-            {/* Sidebar — conversation list */}
-            <ChatSidebar />
+            {/* Sidebar — hidden on mobile when a conversation is open */}
+            <div className="hidden md:block">
+                <ChatSidebar />
+            </div>
 
-            {/* Main chat area scoped to this conversation */}
+            {/* Main chat area — full width on mobile */}
             <main className="flex flex-1 flex-col">
-                {/* TODO: Fetch conversation data using the id param */}
                 <ChatWindow conversationId={id} />
             </main>
         </div>

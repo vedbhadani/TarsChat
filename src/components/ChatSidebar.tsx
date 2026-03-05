@@ -71,7 +71,7 @@ export function ChatSidebar() {
     };
 
     return (
-        <aside className="flex h-full w-80 flex-col border-r border-border bg-sidebar">
+        <aside className="flex h-full w-full md:w-80 flex-col border-r border-border bg-sidebar">
             {/* User profile header */}
             <div className="flex items-center gap-3 border-b border-border px-4 py-4">
                 <UserButton

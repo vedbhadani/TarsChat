@@ -8,6 +8,7 @@ import { useUser } from "@clerk/nextjs";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 interface ChatWindowProps {
     conversationId?: string;
@@ -15,6 +16,7 @@ interface ChatWindowProps {
 
 export function ChatWindow({ conversationId }: ChatWindowProps) {
     const { user: clerkUser } = useUser();
+    const router = useRouter();
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Get the current Convex user
@@ -90,8 +92,20 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
     return (
         <div className="flex flex-1 flex-col bg-background">
             {/* Header */}
-            <header className="flex items-center justify-between border-b border-border px-6 py-4">
-                <div className="flex items-center gap-3">
+            <header className="flex items-center justify-between border-b border-border px-4 md:px-6 py-4">
+                <div className="flex items-center gap-2 md:gap-3">
+                    {/* Mobile back button */}
+                    {conversationId && (
+                        <button
+                            onClick={() => router.push("/chat")}
+                            className="md:hidden shrink-0 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+                            aria-label="Back to conversations"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="m15 18-6-6 6-6" />
+                            </svg>
+                        </button>
+                    )}
                     {conversationId && otherUser ? (
                         <>
                             {/* Other user's avatar */}
