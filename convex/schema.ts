@@ -79,5 +79,6 @@ export default defineSchema({
         emoji: v.string(),
     })
         .index("by_messageId", ["messageId"])
+        .index("by_message_user", ["messageId", "userId"])
         .index("by_message_user_emoji", ["messageId", "userId", "emoji"]),
 });

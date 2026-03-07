@@ -74,29 +74,34 @@ export const toggle = mutation({
         emoji: v.string(),
     },
     handler: async (ctx, args) => {
-        // Check if reaction already exists
-        const existing = await ctx.db
+        // Find if this user has any reaction on this message
+        const userReactions = await ctx.db
             .query("reactions")
-            .withIndex("by_message_user_emoji", (q) =>
-                q
-                    .eq("messageId", args.messageId)
-                    .eq("userId", args.userId)
-                    .eq("emoji", args.emoji)
+            .withIndex("by_message_user", (q) =>
+                q.eq("messageId", args.messageId).eq("userId", args.userId)
             )
-            .unique();
+            .collect();
 
-        if (existing) {
-            // Remove the reaction
-            await ctx.db.delete(existing._id);
+        const alreadyHasThisEmoji = userReactions.find(r => r.emoji === args.emoji);
+
+        if (alreadyHasThisEmoji) {
+            // Remove the reaction if it's the same emoji
+            await ctx.db.delete(alreadyHasThisEmoji._id);
             return { action: "removed" };
         } else {
-            // Add the reaction
+            // If the user already has a different reaction, remove all their existing ones first
+            // (Enforces "single user can react with only one emoji")
+            for (const r of userReactions) {
+                await ctx.db.delete(r._id);
+            }
+
+            // Add the new reaction
             await ctx.db.insert("reactions", {
                 messageId: args.messageId,
                 userId: args.userId,
                 emoji: args.emoji,
             });
-            return { action: "added" };
+            return { action: "added", replaced: userReactions.length > 0 };
         }
     },
 });
