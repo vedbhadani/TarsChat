@@ -263,7 +263,7 @@ export function MessageBubble({
                         )}
                     >
                         <div className="relative min-w-[80px]">
-                            <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-sm">
+                            <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] [word-break:break-word] text-sm">
                                 {message}
                                 {timestamp && (
                                     <span className="inline-block w-[72px] h-1" /> // Spacer to prevent text overlapping timestamp
