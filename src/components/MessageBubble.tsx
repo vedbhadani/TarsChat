@@ -157,7 +157,7 @@ export function MessageBubble({
                         onTouchEnd={handleTouchEnd}
                         onTouchMove={handleTouchEnd}
                         className={cn(
-                            "max-w-xs md:max-w-md px-4 py-2 text-sm leading-relaxed transition-transform duration-200 select-none touch-none",
+                            "max-w-xs md:max-w-md px-4 py-2 text-sm leading-relaxed transition-transform duration-200 select-none",
                             getBubbleRadius(),
                             isOwn
                                 ? "bg-[#B5784A] text-[#FFFFFF] shadow-sm"
@@ -165,12 +165,17 @@ export function MessageBubble({
                             isLongPressed && "scale-95 shadow-lg brightness-95"
                         )}
                     >
-                        <div className="flex items-end gap-2">
-                            <p className="whitespace-pre-wrap break-all [overflow-wrap:anywhere]">{message}</p>
+                        <div className="relative min-w-[70px]">
+                            <p className="whitespace-pre-wrap break-all [overflow-wrap:anywhere] text-sm">
+                                {message}
+                                {timestamp && isLastInGroup && (
+                                    <span className="inline-block w-[60px] h-1" /> // Spacer to prevent text overlapping timestamp
+                                )}
+                            </p>
                             {timestamp && isLastInGroup && (
-                                <span
+                                <div
                                     className={cn(
-                                        "shrink-0 text-[10px] tabular-nums leading-[18px]",
+                                        "absolute right-[-4px] bottom-[-2px] flex items-center gap-1 text-[10px] tabular-nums whitespace-nowrap",
                                         isOwn ? "text-[rgba(255,255,255,0.7)]" : "text-[#B0A090]"
                                     )}
                                 >
@@ -179,20 +184,20 @@ export function MessageBubble({
                                         <img
                                             src={isRead ? "/double-tick.png" : "/single-tick.png"}
                                             alt={isRead ? "Read" : "Sent"}
-                                            className="ml-1 h-3 w-3 object-contain inline-block opacity-80"
+                                            className="h-3.5 w-3.5 object-contain opacity-80"
                                         />
                                     )}
-                                </span>
+                                </div>
                             )}
                         </div>
                     </div>
 
                     {/* Action buttons — react + delete */}
                     <div className={cn(
-                        "relative flex shrink-0 items-center gap-0.5 transition-all duration-200 z-50",
+                        "relative flex shrink-0 items-center gap-1 transition-all duration-200 z-50",
                         isOwn ? "pr-1" : "pl-1",
                         isLongPressed
-                            ? "opacity-100 translate-y-0 scale-110"
+                            ? "opacity-100 translate-y-0 scale-125"
                             : "opacity-0 md:group-hover:opacity-100 pointer-events-none md:pointer-events-auto"
                     )}>
                         {/* Emoji picker trigger */}
@@ -200,11 +205,11 @@ export function MessageBubble({
                             <div className="relative">
                                 <button
                                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                                    className="rounded-lg p-1.5 text-[#B0A090] transition-all duration-200 hover:bg-[#F5EDE3] hover:text-[#1A1208] active:bg-[#F5EDE3]"
+                                    className="rounded-full p-2 text-[#B0A090] transition-all duration-200 hover:bg-[#F5EDE3] hover:text-[#1A1208] active:bg-[#F5EDE3] md:rounded-lg md:p-1.5"
                                     aria-label="Add reaction"
                                     title="React"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:w-4 md:h-4">
                                         <circle cx="12" cy="12" r="10" />
                                         <path d="M8 14s1.5 2 4 2 4-2 4-2" />
                                         <line x1="9" x2="9.01" y1="9" y2="9" />
@@ -220,8 +225,9 @@ export function MessageBubble({
                                             onClick={() => setShowEmojiPicker(false)}
                                         />
                                         <div className={cn(
-                                            "absolute z-50 flex gap-0.5 rounded-xl border-[1.5px] border-[#E8E0D4] bg-[#FFFFFF] p-1.5 shadow-xl shadow-[rgba(26,18,8,0.1)]",
-                                            isOwn ? "right-0 bottom-10" : "left-0 bottom-10"
+                                            "absolute z-50 flex gap-1 rounded-full border-[1.5px] border-[#E8E0D4] bg-[#FFFFFF] p-2 shadow-2xl shadow-[rgba(26,18,8,0.15)] md:rounded-xl md:p-1.5 md:gap-0.5 md:shadow-xl",
+                                            isOwn ? "right-0 bottom-12" : "left-0 bottom-12",
+                                            "[-translate-x-1/2] left-1/2 md:left-auto md:translate-x-0" // Center on mobile
                                         )}>
                                             {EMOJI_OPTIONS.map((emoji) => (
                                                 <button
@@ -231,7 +237,7 @@ export function MessageBubble({
                                                         setShowEmojiPicker(false);
                                                         setIsLongPressed(false);
                                                     }}
-                                                    className="flex h-9 w-9 items-center justify-center rounded-lg text-lg transition-all duration-150 hover:bg-[#F5EDE3] hover:scale-125 active:scale-90"
+                                                    className="flex h-10 w-10 items-center justify-center rounded-full text-xl transition-all duration-150 hover:bg-[#F5EDE3] hover:scale-125 active:scale-90 md:h-9 md:w-9 md:rounded-lg md:text-lg"
                                                 >
                                                     {emoji}
                                                 </button>
@@ -246,11 +252,11 @@ export function MessageBubble({
                         {isOwn && onDelete && !showConfirm && (
                             <button
                                 onClick={() => setShowConfirm(true)}
-                                className="rounded-lg p-1.5 text-[#B0A090] transition-all duration-200 hover:bg-[#EF4444]/10 hover:text-[#EF4444] active:bg-[#EF4444]/10"
+                                className="rounded-full p-2 text-[#B0A090] transition-all duration-200 hover:bg-[#EF4444]/10 hover:text-[#EF4444] active:bg-[#EF4444]/10 md:rounded-lg md:p-1.5"
                                 aria-label="Delete message"
                                 title="Delete"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:w-4 md:h-4">
                                     <path d="M3 6h18" />
                                     <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
                                     <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
@@ -260,14 +266,14 @@ export function MessageBubble({
 
                         {/* Inline confirmation */}
                         {showConfirm && (
-                            <div className="flex items-center gap-1 rounded-xl border-[1.5px] border-[#E8E0D4] bg-[#FFFFFF] p-1 shadow-lg shadow-[rgba(26,18,8,0.1)]">
+                            <div className="flex items-center gap-1 rounded-full border-[1.5px] border-[#E8E0D4] bg-[#FFFFFF] p-1 shadow-2xl md:rounded-xl md:shadow-lg">
                                 <button
                                     onClick={() => {
                                         onDelete?.(messageId);
                                         setShowConfirm(false);
                                         setIsLongPressed(false);
                                     }}
-                                    className="rounded-lg px-3 py-1.5 text-xs font-bold text-[#EF4444] transition-all duration-200 hover:bg-[#EF4444]/10"
+                                    className="rounded-full px-4 py-2 text-xs font-bold text-[#EF4444] transition-all duration-200 hover:bg-[#EF4444]/10 md:rounded-lg md:px-3 md:py-1.5"
                                 >
                                     Delete
                                 </button>
@@ -276,7 +282,7 @@ export function MessageBubble({
                                         setShowConfirm(false);
                                         setIsLongPressed(false);
                                     }}
-                                    className="rounded-lg px-3 py-1.5 text-xs font-bold text-[#7A6A56] transition-all duration-200 hover:bg-[#F5EDE3]"
+                                    className="rounded-full px-4 py-2 text-xs font-bold text-[#7A6A56] transition-all duration-200 hover:bg-[#F5EDE3] md:rounded-lg md:px-3 md:py-1.5"
                                 >
                                     Cancel
                                 </button>

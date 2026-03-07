@@ -468,9 +468,8 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
                                     })
                                 )}
 
-                                {/* Typing indicator */}
                                 {othersTyping.length > 0 && (
-                                    <div className="flex w-full justify-start">
+                                    <div className="flex w-full justify-start mt-2 mb-4">
                                         <div className="flex items-center gap-2 rounded-tl-[16px] rounded-tr-[16px] rounded-br-[16px] rounded-bl-[4px] bg-[#FFFFFF] px-4 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-[#E8E0D4]">
                                             <span className="text-xs font-medium text-[#7A6A56]">
                                                 {othersTyping.map((t) => t?.name).join(", ")}
