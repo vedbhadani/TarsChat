@@ -37,7 +37,7 @@ export const createUserIfNotExists = mutation({
     args: {
         clerkId: v.string(),
         name: v.string(),
-        username: v.string(),
+        username: v.optional(v.string()),
         image: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
