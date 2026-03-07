@@ -90,31 +90,47 @@ export function ChatSidebar() {
         <aside className="flex h-full w-full md:w-80 flex-col bg-[#F2EDE4] border-r border-[#E8E0D4]">
             {/* App brand + user header + tabs */}
             <div className="bg-[#FFFFFF] border-b border-[#E8E0D4] px-5 pt-5 pb-4">
-                {/* 1. App Brand */}
-                <div className="flex items-center justify-center gap-2 mb-6">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[#B5784A] text-xl shadow-sm">
-                        💬
-                    </div>
-                    <span className="text-2xl font-bold tracking-tight text-[#1A1208]">TarsChat</span>
-                </div>
+                {/* 1 & 2. Responsive Header Section */}
+                <div className="flex flex-col md:items-center">
+                    {/* Brand Row (Mobile: Space-between, Desktop: Centered) */}
+                    <div className="flex w-full items-center justify-between mb-6 md:justify-center">
+                        <div className="flex items-center gap-2">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[#B5784A] text-xl shadow-sm">
+                                💬
+                            </div>
+                            <span className="text-2xl font-bold tracking-tight text-[#1A1208]">TarsChat</span>
+                        </div>
 
-                {/* 2. User Profile Stack */}
-                <div className="flex flex-col items-center justify-center text-center">
-                    <div className="mb-2">
-                        <UserButton
-                            appearance={{
-                                elements: {
-                                    avatarBox: "h-16 w-16 ring-4 ring-[#F2EDE4] hover:ring-[#B5784A] transition-all shadow-sm",
-                                },
-                            }}
-                        />
+                        {/* Avatar on right — Mobile only */}
+                        <div className="md:hidden">
+                            <UserButton
+                                appearance={{
+                                    elements: {
+                                        avatarBox: "h-20 w-20 ring-4 ring-[#F2EDE4] transition-all shadow-sm",
+                                    },
+                                }}
+                            />
+                        </div>
                     </div>
-                    <p className="text-[15px] font-bold tracking-tight text-[#1A1208]">
-                        {isLoaded && user ? (user.fullName || user.username || "User") : "Guest User"}
-                    </p>
-                    <p className="mt-0.5 text-[11px] text-[#7A6A56]">
-                        {user?.primaryEmailAddress?.emailAddress ?? (isLoaded ? "Personal Account" : "Loading...")}
-                    </p>
+
+                    {/* Desktop User Profile Stack (Name, Email, large Avatar) — Hidden on mobile */}
+                    <div className="hidden md:flex flex-col items-center justify-center text-center">
+                        <div className="mb-2">
+                            <UserButton
+                                appearance={{
+                                    elements: {
+                                        avatarBox: "h-28 w-28 ring-4 ring-[#F2EDE4] hover:ring-[#B5784A] transition-all shadow-sm",
+                                    },
+                                }}
+                            />
+                        </div>
+                        <p className="text-[15px] font-bold tracking-tight text-[#1A1208]">
+                            {isLoaded && user ? (user.fullName || user.username || "User") : "Guest User"}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-[#7A6A56]">
+                            {user?.primaryEmailAddress?.emailAddress ?? (isLoaded ? "Personal Account" : "Loading...")}
+                        </p>
+                    </div>
                 </div>
 
                 {/* 3. Pill Tab Switcher */}

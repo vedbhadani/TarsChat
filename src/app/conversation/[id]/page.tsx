@@ -9,7 +9,7 @@ export default async function ConversationPage({ params }: ConversationPageProps
     const { id } = await params;
 
     return (
-        <div className="flex h-screen overflow-hidden bg-background">
+        <div className="flex h-[100dvh] overflow-hidden bg-background">
             {/* Sidebar — hidden on mobile when a conversation is open */}
             <div className="hidden md:block">
                 <ChatSidebar />

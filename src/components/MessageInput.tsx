@@ -94,7 +94,7 @@ export function MessageInput({ conversationId, senderId }: MessageInputProps) {
                     onKeyDown={handleKeyDown}
                     placeholder="Type a message…"
                     disabled={isSending}
-                    className="flex-1 resize-none rounded-xl border-[1.5px] border-[#E8E0D4] bg-[#FAF7F2] px-4 py-2.5 text-sm text-[#1A1208] placeholder:text-[#B0A090] focus:outline-none focus:border-[#B5784A] focus:shadow-[0_0_0_3px_rgba(181,120,74,0.12)] disabled:opacity-50 transition-all duration-200"
+                    className="flex-1 resize-none rounded-xl border-[1.5px] border-[#E8E0D4] bg-[#FAF7F2] px-4 py-2.5 text-sm text-[#1A1208] placeholder:text-[#B0A090] focus:outline-none focus:border-[#B5784A] focus:shadow-[0_0_0_3px_rgba(181,120,74,0.12)] disabled:opacity-50 transition-all duration-200 break-all [overflow-wrap:anywhere] overflow-x-hidden"
                 />
 
                 {/* Send button */}

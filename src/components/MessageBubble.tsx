@@ -134,7 +134,7 @@ export function MessageBubble({
                         )}
                     >
                         <div className="flex items-end gap-2">
-                            <p className="whitespace-pre-wrap break-words">{message}</p>
+                            <p className="whitespace-pre-wrap break-all [overflow-wrap:anywhere]">{message}</p>
                             {timestamp && isLastInGroup && (
                                 <span
                                     className={cn(
@@ -144,9 +144,11 @@ export function MessageBubble({
                                 >
                                     {formatMessageTimestamp(timestamp)}
                                     {isOwn && (
-                                        <span className="ml-1 text-[10px] text-[rgba(255,255,255,0.7)] font-bold">
-                                            {isRead ? "✓✓" : "✓"}
-                                        </span>
+                                        <img
+                                            src={isRead ? "/double-tick.png" : "/single-tick.png"}
+                                            alt={isRead ? "Read" : "Sent"}
+                                            className="ml-1 h-3 w-3 object-contain inline-block opacity-80"
+                                        />
                                     )}
                                 </span>
                             )}

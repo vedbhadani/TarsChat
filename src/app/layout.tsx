@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexClientProvider } from "@/components/providers/ConvexClientProvider";
@@ -14,6 +14,15 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "TarsChat — Realtime Messaging",
   description: "Connect and message people instantly with TarsChat",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#B5784A",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({
@@ -107,7 +116,7 @@ export default function RootLayout({
       <html lang="en">
         <body className={`${jakarta.variable} font-sans antialiased`}>
           <ConvexClientProvider>
-            <div className="flex min-h-screen flex-col">{children}</div>
+            <div className="flex min-h-[100dvh] flex-col">{children}</div>
             <Toaster position="top-right" />
           </ConvexClientProvider>
         </body>
