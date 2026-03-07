@@ -74,12 +74,15 @@ export default function RootLayout({
             backgroundColor: "#FAF7F2 !important",
             color: "#1A1208 !important",
             borderColor: "#E8E0D4 !important",
+            borderRadius: "12px",
           },
           formFieldLabel: {
             color: "#7A6A56 !important",
+            fontWeight: "600 !important",
           },
           headerTitle: {
             color: "#1A1208 !important",
+            fontWeight: "700 !important",
           },
           headerSubtitle: {
             color: "#7A6A56 !important",
@@ -87,6 +90,12 @@ export default function RootLayout({
           socialButtonsIconButton: {
             backgroundColor: "#FFFFFF !important",
             border: "1.5px solid #E8E0D4 !important",
+            transition: "all 0.2s ease",
+          },
+          socialButtonsBlockButton: {
+            backgroundColor: "#FFFFFF !important",
+            border: "1.5px solid #E8E0D4 !important",
+            transition: "all 0.2s ease",
           },
           footerActionText: {
             color: "#7A6A56 !important",
@@ -101,7 +110,20 @@ export default function RootLayout({
           },
           footerActionLink: {
             color: "#B5784A !important",
+            fontWeight: "700 !important",
+          },
+          identityPreviewText: {
+            color: "#1A1208 !important",
             fontWeight: "600 !important",
+          },
+          identityPreviewEditButton: {
+            color: "#B5784A !important",
+          },
+          formButtonPrimary: {
+            backgroundColor: "#B5784A !important",
+            textTransform: "none",
+            fontWeight: "600",
+            borderRadius: "12px",
           },
           modalCloseButton: {
             color: "#1A1208 !important",
@@ -109,6 +131,19 @@ export default function RootLayout({
             border: "none !important",
             backgroundColor: "transparent !important",
             boxShadow: "none !important",
+          },
+          formHeaderTitle: {
+            color: "#1A1208 !important",
+          },
+          formHeaderSubtitle: {
+            color: "#7A6A56 !important",
+          },
+          userPreviewMainIdentifier: {
+            color: "#1A1208 !important",
+            fontWeight: "600 !important",
+          },
+          userPreviewSecondaryIdentifier: {
+            color: "#7A6A56 !important",
           },
         },
       }}

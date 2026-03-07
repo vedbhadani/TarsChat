@@ -37,6 +37,7 @@ export const createUserIfNotExists = mutation({
     args: {
         clerkId: v.string(),
         name: v.string(),
+        username: v.string(),
         image: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
@@ -50,6 +51,7 @@ export const createUserIfNotExists = mutation({
             // User exists — update their info and mark online
             await ctx.db.patch(existingUser._id, {
                 name: args.name,
+                username: args.username,
                 image: args.image ?? "",
                 online: true,
             });
@@ -60,6 +62,7 @@ export const createUserIfNotExists = mutation({
         return await ctx.db.insert("users", {
             clerkId: args.clerkId,
             name: args.name,
+            username: args.username,
             image: args.image ?? "",
             online: true,
             lastSeen: Date.now(),

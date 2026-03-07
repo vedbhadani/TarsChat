@@ -13,6 +13,8 @@ export default defineSchema({
         clerkId: v.string(),
         // User's display name, used for rendering in chat UI.
         name: v.string(),
+        // User's handle/username from Clerk.
+        username: v.optional(v.string()),
         // URL to the user's avatar image.
         image: v.string(),
         // Indicates if the user is currently online/active in the application.

@@ -290,7 +290,7 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
                             </div>
                             <div>
                                 <h3 className="text-sm font-semibold text-[#1A1208]">
-                                    {conversation?.isGroup ? conversation.groupName : otherUser?.name}
+                                    {conversation?.isGroup ? conversation.groupName : (otherUser?.username || otherUser?.name)}
                                 </h3>
                                 <p className={`text-xs ${conversation?.isGroup ? "text-[#7A6A56]" : otherUser?.online ? "text-[#34C759]" : "text-[#7A6A56]"}`}>
                                     {conversation?.isGroup

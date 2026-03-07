@@ -85,6 +85,7 @@ export const getMyConversations = query({
                         ? {
                             _id: otherMember._id,
                             name: otherMember.name,
+                            username: otherMember.username,
                             image: otherMember.image,
                             online: otherMember.online,
                         }

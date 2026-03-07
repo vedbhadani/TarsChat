@@ -36,9 +36,12 @@ export function ChatSidebar() {
     // Sync user to Convex on login
     useEffect(() => {
         if (isLoaded && user) {
+            const username = user.username || user.fullName?.toLowerCase().replace(/\s+/g, "") || user.primaryEmailAddress?.emailAddress?.split("@")[0] || "unknown";
+
             createUserIfNotExists({
                 clerkId: user.id,
                 name: user.fullName || user.username || user.firstName || user.primaryEmailAddress?.emailAddress?.split("@")[0] || "Unknown",
+                username: username,
                 image: user.imageUrl,
             }).catch((err) => console.error("Failed to sync user to Convex:", err));
         }
@@ -125,7 +128,7 @@ export function ChatSidebar() {
                             />
                         </div>
                         <p className="text-[15px] font-bold tracking-tight text-[#1A1208]">
-                            {isLoaded && user ? (user.fullName || user.username || "User") : "Guest User"}
+                            {isLoaded && user ? (user.username || user.fullName || "User") : "Guest User"}
                         </p>
                         <p className="mt-0.5 text-[11px] text-[#7A6A56]">
                             {user?.primaryEmailAddress?.emailAddress ?? (isLoaded ? "Personal Account" : "Loading...")}

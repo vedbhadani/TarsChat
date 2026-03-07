@@ -110,7 +110,7 @@ export function ConversationList({ searchQuery, onSelectConversation, activeConv
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center justify-between gap-2">
                                 <p className={`truncate text-sm ${isActive ? "font-bold text-[#B5784A]" : conv.unreadCount > 0 ? "font-bold text-[#1A1208]" : "font-medium text-[#1A1208]"}`}>
-                                    {conv.isGroup ? `${conv.groupName} (${conv.memberCount})` : (conv.otherUser?.name ?? "Unknown User")}
+                                    {conv.isGroup ? `${conv.groupName} (${conv.memberCount})` : (conv.otherUser?.username || conv.otherUser?.name || "Unknown User")}
                                 </p>
                                 {conv.lastMessage && (
                                     <span className="shrink-0 text-[10px] font-semibold text-[#7A6A56] tabular-nums">
