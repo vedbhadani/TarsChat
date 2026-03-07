@@ -82,32 +82,32 @@ export function NewGroupModal({ isOpen, onClose, onGroupCreated }: NewGroupModal
             />
 
             {/* Modal */}
-            <div className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-[16px] border-[1.5px] border-[#E8E0D4] bg-[#FFFFFF] shadow-[0_2px_4px_rgba(26,18,8,0.04),0_12px_32px_rgba(26,18,8,0.10)] animate-in zoom-in-95 fade-in duration-200">
-                <div className="flex flex-col p-6 sm:p-8">
-                    <div className="flex items-center justify-between mb-6">
+            <div className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-32px)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[24px] border-[1.5px] border-[#E8E0D4] bg-[#FFFFFF] shadow-[0_2px_4px_rgba(26,18,8,0.04),0_12px_48px_rgba(26,18,8,0.12)] animate-in zoom-in-95 fade-in duration-200 sm:w-full">
+                <div className="flex flex-col p-5 sm:p-8">
+                    <div className="flex items-center justify-between mb-5 sm:mb-6">
                         <div>
-                            <h2 className="text-xl font-bold tracking-tight text-[#1A1208]">
+                            <h2 className="text-lg font-bold tracking-tight text-[#1A1208] sm:text-xl">
                                 New Group
                             </h2>
-                            <p className="text-sm font-medium text-[#7A6A56] mt-1">
+                            <p className="text-xs font-medium text-[#7A6A56] mt-0.5 sm:text-sm sm:mt-1">
                                 Create a space for your team
                             </p>
                         </div>
                         <button
                             onClick={onClose}
-                            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E8E0D4] text-[#7A6A56] transition-all duration-300 hover:bg-[#F5EDE3] hover:text-[#1A1208] hover:border-[#B5784A] active:scale-95"
+                            className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E8E0D4] text-[#7A6A56] transition-all duration-300 hover:bg-[#F5EDE3] hover:text-[#1A1208] hover:border-[#B5784A] active:scale-95 sm:h-9 sm:w-9"
                             aria-label="Close"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="sm:w-4 sm:h-4">
                                 <path d="M18 6 6 18" /><path d="m6 6 12 12" />
                             </svg>
                         </button>
                     </div>
 
-                    <div className="space-y-5">
+                    <div className="space-y-4 sm:space-y-5">
                         {/* Group Name Input */}
-                        <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-[#7A6A56] uppercase tracking-wider ml-1">
+                        <div className="space-y-1.5 sm:space-y-2">
+                            <label className="text-[10px] font-bold text-[#7A6A56] uppercase tracking-wider ml-1 sm:text-[11px]">
                                 Group Name
                             </label>
                             <input
@@ -115,26 +115,26 @@ export function NewGroupModal({ isOpen, onClose, onGroupCreated }: NewGroupModal
                                 value={groupName}
                                 onChange={(e) => setGroupName(e.target.value)}
                                 placeholder="e.g. Design Team"
-                                className="w-full rounded-xl border-[1.5px] border-[#E8E0D4] bg-[#FAF7F2] px-5 py-3.5 text-[15px] font-semibold text-[#1A1208] placeholder:text-[#B0A090] focus:outline-none focus:border-[#B5784A] focus:shadow-[0_0_0_3px_rgba(181,120,74,0.12)] transition-all duration-300"
+                                className="w-full rounded-xl border-[1.5px] border-[#E8E0D4] bg-[#FAF7F2] px-4 py-3 text-[14px] font-semibold text-[#1A1208] placeholder:text-[#B0A090] focus:outline-none focus:border-[#B5784A] focus:shadow-[0_0_0_3px_rgba(181,120,74,0.12)] transition-all duration-300 sm:px-5 sm:py-3.5 sm:text-[15px]"
                                 maxLength={50}
                             />
                         </div>
 
                         {/* Members Selection */}
-                        <div className="space-y-2 pt-1">
+                        <div className="space-y-1.5 sm:space-y-2 pt-1">
                             <div className="flex justify-between items-center ml-1 mb-1">
-                                <label className="text-[11px] font-bold text-[#7A6A56] uppercase tracking-wider">
+                                <label className="text-[10px] font-bold text-[#7A6A56] uppercase tracking-wider sm:text-[11px]">
                                     Members
                                 </label>
                                 {selectedUserIds.size > 0 && (
-                                    <span className="text-[11px] font-bold text-[#B5784A] tabular-nums bg-[#F5EDE3] px-2.5 py-0.5 rounded-full border border-[#B5784A]">
+                                    <span className="text-[10px] font-bold text-[#B5784A] tabular-nums bg-[#F5EDE3] px-2 py-0.5 rounded-full border border-[#B5784A] sm:text-[11px] sm:px-2.5">
                                         {selectedUserIds.size} selected
                                     </span>
                                 )}
                             </div>
 
                             <div className="relative">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="absolute left-4 top-1/2 -translate-y-1/2 text-[#B0A090]">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="absolute left-4 top-1/2 -translate-y-1/2 text-[#B0A090] sm:w-4 sm:h-4">
                                     <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
                                 </svg>
                                 <input
@@ -142,11 +142,11 @@ export function NewGroupModal({ isOpen, onClose, onGroupCreated }: NewGroupModal
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Search people..."
-                                    className="w-full rounded-xl border-[1.5px] border-[#E8E0D4] bg-[#FAF7F2] pl-11 pr-5 py-3 text-[14px] font-semibold text-[#1A1208] placeholder:text-[#B0A090] focus:outline-none focus:border-[#B5784A] focus:shadow-[0_0_0_3px_rgba(181,120,74,0.12)] transition-all duration-300"
+                                    className="w-full rounded-xl border-[1.5px] border-[#E8E0D4] bg-[#FAF7F2] pl-10 pr-4 py-2.5 text-[13px] font-semibold text-[#1A1208] placeholder:text-[#B0A090] focus:outline-none focus:border-[#B5784A] focus:shadow-[0_0_0_3px_rgba(181,120,74,0.12)] transition-all duration-300 sm:pl-11 sm:pr-5 sm:py-3 sm:text-[14px]"
                                 />
                             </div>
 
-                            <div className="h-[210px] overflow-y-auto rounded-xl bg-[#FAF7F2] p-1.5 space-y-1 scrollbar-thin mt-3 border border-[#E8E0D4]">
+                            <div className="h-[180px] overflow-y-auto rounded-xl bg-[#FAF7F2] p-1.5 space-y-1 scrollbar-thin mt-2 border border-[#E8E0D4] sm:h-[210px] sm:mt-3">
                                 {filteredUsers.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center py-12 text-center">
                                         <p className="text-[13px] font-medium text-[#B0A090]">No users found</p>

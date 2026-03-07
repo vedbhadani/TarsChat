@@ -150,29 +150,51 @@ export function MessageBubble({
                 )}
 
                 {/* Bubble & Action Buttons Wrapper */}
-                <div className={cn("flex items-center gap-1", isOwn ? "flex-row-reverse" : "flex-row")}>
+                <div className={cn("relative flex items-center gap-2", isOwn ? "flex-row-reverse" : "flex-row")}>
+                    {/* Floating Emoji Bar (WhatsApp style) */}
+                    {isLongPressed && onToggleReaction && (
+                        <div className={cn(
+                            "absolute -top-14 z-[60] flex items-center gap-1 rounded-full bg-white p-1.5 shadow-2xl border-[1.5px] border-[#E8E0D4] animate-in slide-in-from-bottom-2 duration-200",
+                            isOwn ? "right-0" : "left-0"
+                        )}>
+                            {EMOJI_OPTIONS.map((emoji) => (
+                                <button
+                                    key={emoji}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onToggleReaction(messageId, emoji);
+                                        setIsLongPressed(false);
+                                    }}
+                                    className="flex h-10 w-10 items-center justify-center rounded-full text-xl transition-all duration-150 hover:bg-[#F5EDE3] hover:scale-125 active:scale-90"
+                                >
+                                    {emoji}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
                     {/* The bubble */}
                     <div
                         onTouchStart={handleTouchStart}
                         onTouchEnd={handleTouchEnd}
                         onTouchMove={handleTouchEnd}
                         className={cn(
-                            "max-w-xs md:max-w-md px-4 py-2 text-sm leading-relaxed transition-transform duration-200 select-none",
+                            "max-w-xs md:max-w-md px-4 py-2 text-sm leading-relaxed transition-all duration-200 select-none",
                             getBubbleRadius(),
                             isOwn
                                 ? "bg-[#B5784A] text-[#FFFFFF] shadow-sm"
                                 : "bg-[#FFFFFF] text-[#1A1208] border border-[#E8E0D4] shadow-[0_1px_3px_rgba(0,0,0,0.06)]",
-                            isLongPressed && "scale-95 shadow-lg brightness-95"
+                            isLongPressed && "scale-[0.98] shadow-lg brightness-95 ring-2 ring-[#B5784A]/20"
                         )}
                     >
                         <div className="relative min-w-[70px]">
                             <p className="whitespace-pre-wrap break-all [overflow-wrap:anywhere] text-sm">
                                 {message}
-                                {timestamp && isLastInGroup && (
+                                {timestamp && (
                                     <span className="inline-block w-[60px] h-1" /> // Spacer to prevent text overlapping timestamp
                                 )}
                             </p>
-                            {timestamp && isLastInGroup && (
+                            {timestamp && (
                                 <div
                                     className={cn(
                                         "absolute right-[-4px] bottom-[-2px] flex items-center gap-1 text-[10px] tabular-nums whitespace-nowrap",
@@ -194,13 +216,12 @@ export function MessageBubble({
 
                     {/* Action buttons — react + delete */}
                     <div className={cn(
-                        "relative flex shrink-0 items-center gap-1 transition-all duration-200 z-50",
-                        isOwn ? "pr-1" : "pl-1",
+                        "flex shrink-0 items-center gap-1 transition-all duration-200 z-50",
                         isLongPressed
-                            ? "opacity-100 translate-y-0 scale-125"
+                            ? "opacity-100 translate-y-0"
                             : "opacity-0 md:group-hover:opacity-100 pointer-events-none md:pointer-events-auto"
                     )}>
-                        {/* Emoji picker trigger */}
+                        {/* Emoji picker trigger (Desktop only or redundancy) */}
                         {onToggleReaction && (
                             <div className="relative">
                                 <button
@@ -209,7 +230,7 @@ export function MessageBubble({
                                     aria-label="Add reaction"
                                     title="React"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:w-4 md:h-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:w-4 md:h-4">
                                         <circle cx="12" cy="12" r="10" />
                                         <path d="M8 14s1.5 2 4 2 4-2 4-2" />
                                         <line x1="9" x2="9.01" y1="9" y2="9" />
@@ -217,7 +238,7 @@ export function MessageBubble({
                                     </svg>
                                 </button>
 
-                                {/* Emoji picker dropdown */}
+                                {/* Emoji picker dropdown (Fallback for desktop) */}
                                 {showEmojiPicker && (
                                     <>
                                         <div
@@ -225,9 +246,8 @@ export function MessageBubble({
                                             onClick={() => setShowEmojiPicker(false)}
                                         />
                                         <div className={cn(
-                                            "absolute z-50 flex gap-1 rounded-full border-[1.5px] border-[#E8E0D4] bg-[#FFFFFF] p-2 shadow-2xl shadow-[rgba(26,18,8,0.15)] md:rounded-xl md:p-1.5 md:gap-0.5 md:shadow-xl",
+                                            "absolute z-50 flex gap-1 rounded-full border-[1.5px] border-[#E8E0D4] bg-[#FFFFFF] p-2 shadow-2xl md:rounded-xl md:p-1.5 md:gap-0.5 md:shadow-xl",
                                             isOwn ? "right-0 bottom-12" : "left-0 bottom-12",
-                                            "[-translate-x-1/2] left-1/2 md:left-auto md:translate-x-0" // Center on mobile
                                         )}>
                                             {EMOJI_OPTIONS.map((emoji) => (
                                                 <button
@@ -256,7 +276,7 @@ export function MessageBubble({
                                 aria-label="Delete message"
                                 title="Delete"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:w-4 md:h-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:w-4 md:h-4">
                                     <path d="M3 6h18" />
                                     <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
                                     <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
