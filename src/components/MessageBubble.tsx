@@ -262,17 +262,17 @@ export function MessageBubble({
                             isLongPressed && "scale-[0.98] shadow-lg brightness-95 ring-2 ring-[#B5784A]/20"
                         )}
                     >
-                        <div className="relative min-w-[80px]">
+                        <div className="relative min-w-[92px]">
                             <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] [word-break:break-word] text-sm">
                                 {message}
                                 {timestamp && (
-                                    <span className="inline-block w-[72px] h-1" /> // Spacer to prevent text overlapping timestamp
+                                    <span className="inline-block w-[76px] h-1" /> // Spacer to prevent text overlapping timestamp
                                 )}
                             </p>
                             {timestamp && (
                                 <div
                                     className={cn(
-                                        "absolute right-0 bottom-0 flex items-center gap-1 text-[10px] tabular-nums whitespace-nowrap",
+                                        "absolute right-[1px] bottom-[1px] flex items-center gap-1 text-[10px] tabular-nums whitespace-nowrap",
                                         isOwn ? "text-[rgba(255,255,255,0.7)]" : "text-[#B0A090]"
                                     )}
                                 >
