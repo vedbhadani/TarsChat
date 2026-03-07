@@ -105,7 +105,7 @@ export function MessageBubble({
             >
                 <div
                     className={cn(
-                        "max-w-xs md:max-w-md rounded-2xl px-4 py-2 text-sm border border-dashed border-[#E8E0D4]",
+                        "max-w-[80%] md:max-w-md rounded-2xl px-4 py-2 text-sm border border-dashed border-[#E8E0D4]",
                         isOwn ? "rounded-br-[4px]" : "rounded-bl-[4px]"
                     )}
                 >
@@ -238,7 +238,7 @@ export function MessageBubble({
                         onTouchEnd={handleTouchEnd}
                         onTouchMove={handleTouchEnd}
                         className={cn(
-                            "max-w-xs md:max-w-md px-4 py-2 text-sm leading-relaxed transition-all duration-200 select-none",
+                            "max-w-[80%] md:max-w-md px-4 py-2 text-sm leading-relaxed transition-all duration-200 select-none",
                             getBubbleRadius(),
                             isOwn
                                 ? "bg-[#B5784A] text-[#FFFFFF] shadow-sm"
