@@ -22,7 +22,6 @@ interface MessageBubbleProps {
     reactions?: ReactionData[];
     currentUserId?: string;
     onToggleReaction?: (messageId: Id<"messages">, emoji: string) => void;
-    // Grouping props
     senderName?: string;
     senderImage?: string;
     isFirstInGroup?: boolean;
@@ -53,7 +52,6 @@ export function MessageBubble({
     const containerRef = useRef<HTMLDivElement>(null);
 
     const handleTouchStart = () => {
-        // Only trigger for mobile/touch
         longPressTimeout.current = setTimeout(() => {
             setIsLongPressed(true);
         }, 500);
@@ -66,13 +64,11 @@ export function MessageBubble({
         }
     };
 
-    // Close on outside click or scroll
     useEffect(() => {
         if (!isLongPressed) return;
 
         const handleClickOutside = (event: MouseEvent | TouchEvent) => {
             const target = event.target as Node;
-            // Only close if the click is truly outside our bubble and its overlays
             if (containerRef.current && !containerRef.current.contains(target)) {
                 setIsLongPressed(false);
                 setShowConfirm(false);
@@ -88,9 +84,7 @@ export function MessageBubble({
 
         document.addEventListener("mousedown", handleClickOutside);
         document.addEventListener("touchstart", handleClickOutside);
-        // Use capture: true to catch scrolls anywhere in the app
         window.addEventListener("scroll", handleDismiss, { capture: true, passive: true });
-        // Also listen for touchmove to close quickly on mobile
         window.addEventListener("touchmove", handleDismiss, { capture: true, passive: true });
 
         return () => {
@@ -103,13 +97,10 @@ export function MessageBubble({
 
     const hasReactions = reactions && reactions.length > 0;
 
-    // Dynamic border radius for grouped messages
     const getBubbleRadius = () => {
         if (isOwn) {
-            // 16px 16px 4px 16px — sharp bottom-right
             return "rounded-tl-[16px] rounded-tr-[16px] rounded-bl-[16px] rounded-br-[4px]";
         } else {
-            // 16px 16px 16px 4px — sharp bottom-left
             return "rounded-tl-[16px] rounded-tr-[16px] rounded-br-[16px] rounded-bl-[4px]";
         }
     };
@@ -126,7 +117,7 @@ export function MessageBubble({
             >
                 <div
                     className={cn(
-                        "max-w-[80%] md:max-w-md rounded-2xl px-4 py-2 text-sm border border-dashed border-[#E8E0D4]",
+                        "max-w-[75vw] md:max-w-md rounded-2xl px-4 py-2 text-sm border border-dashed border-[#E8E0D4]",
                         isOwn ? "rounded-br-[4px]" : "rounded-bl-[4px]"
                     )}
                 >
@@ -148,7 +139,6 @@ export function MessageBubble({
                 isFirstInGroup ? "mt-3" : "mt-0.5"
             )}
         >
-            {/* Context menu backdrop for mobile - non-blocking to allow scroll flow */}
             {isLongPressed && (
                 <div
                     className="fixed inset-0 z-40 bg-black/5 md:hidden pointer-events-none"
@@ -156,7 +146,7 @@ export function MessageBubble({
                 />
             )}
 
-            {/* Sender avatar — only for received, first in group */}
+            {/* Sender avatar */}
             {!isOwn && isFirstInGroup && (
                 <div className="shrink-0 mb-0.5">
                     {senderImage ? (
@@ -174,8 +164,8 @@ export function MessageBubble({
             )}
 
             {/* Message column */}
-            <div className={cn("flex flex-col", isOwn ? "items-end" : "items-start")}>
-                {/* Sender name — only for received, first in group */}
+            <div className={cn("flex flex-col min-w-0", isOwn ? "items-end" : "items-start")}>
+                {/* Sender name */}
                 {!isOwn && isFirstInGroup && senderName && (
                     <span className="mb-1 ml-1 text-[11px] font-medium text-[#7A6A56]">
                         {senderName}
@@ -184,12 +174,12 @@ export function MessageBubble({
 
                 {/* Bubble & Action Buttons Wrapper */}
                 <div className={cn("relative flex items-center gap-2", isOwn ? "flex-row-reverse" : "flex-row")}>
-                    {/* Unified Floating Action Bar (WhatsApp style) */}
+                    {/* Floating Action Bar (mobile long-press) */}
                     {isLongPressed && (
                         <div className={cn(
                             "absolute z-[60] flex items-center gap-1 rounded-full bg-white p-1.5 shadow-2xl border-[1.5px] border-[#E8E0D4] animate-in slide-in-from-bottom-2 duration-200",
                             isOwn ? "right-0" : "left-0",
-                            "-top-14" // Positioning above bubble
+                            "-top-14"
                         )}>
                             {!showConfirm ? (
                                 <>
@@ -254,26 +244,22 @@ export function MessageBubble({
                         onTouchEnd={handleTouchEnd}
                         onTouchMove={handleTouchEnd}
                         className={cn(
-                            "max-w-[80%] md:max-w-md px-4 py-2 text-sm leading-relaxed transition-all duration-200 select-none",
+                            "min-w-0 max-w-[75vw] md:max-w-[320px] px-2.5 py-1.5 transition-all duration-200 select-none",
                             getBubbleRadius(),
                             isOwn
-                                ? "bg-[#B5784A] text-[#FFFFFF] shadow-sm"
-                                : "bg-[#FFFFFF] text-[#1A1208] border border-[#E8E0D4] shadow-[0_1px_3px_rgba(0,0,0,0.06)]",
+                                ? "bg-[#B5784A] text-[#FFFFFF] shadow-sm ml-auto"
+                                : "bg-[#FFFFFF] text-[#1A1208] border border-[#E8E0D4] shadow-[0_1px_2px_rgba(0,0,0,0.05)] mr-auto",
                             isLongPressed && "scale-[0.98] shadow-lg brightness-95 ring-2 ring-[#B5784A]/20"
                         )}
                     >
-                        <div className="relative min-w-[92px]">
-                            <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] [word-break:break-word] text-sm">
-                                {message}
-                                {timestamp && (
-                                    <span className="inline-block w-[76px] h-1" /> // Spacer to prevent text overlapping timestamp
-                                )}
-                            </p>
+                        {/* Message text + inline timestamp (WhatsApp float trick) */}
+                        <div className="text-[15px] leading-[20px] whitespace-pre-wrap break-words [overflow-wrap:anywhere] [word-break:break-word]">
+                            {message.trim()}
                             {timestamp && (
-                                <div
+                                <span
                                     className={cn(
-                                        "absolute right-[1px] bottom-[1px] flex items-center gap-1 text-[10px] tabular-nums whitespace-nowrap",
-                                        isOwn ? "text-[rgba(255,255,255,0.7)]" : "text-[#B0A090]"
+                                        "inline-flex items-center gap-0.5 text-[11px] tabular-nums whitespace-nowrap select-none float-right ml-2 mt-1 relative top-[2px]",
+                                        isOwn ? "text-[rgba(255,255,255,0.85)]" : "text-[#B0A090]"
                                     )}
                                 >
                                     {formatMessageTimestamp(timestamp)}
@@ -281,15 +267,15 @@ export function MessageBubble({
                                         <img
                                             src={isRead ? "/double-tick.png" : "/single-tick.png"}
                                             alt={isRead ? "Read" : "Sent"}
-                                            className="h-3.5 w-3.5 object-contain opacity-80"
+                                            className="h-[17px] w-[17px] object-contain opacity-95 translate-y-[0.5px]"
                                         />
                                     )}
-                                </div>
+                                </span>
                             )}
                         </div>
                     </div>
 
-                    {/* Desktop Hover Action buttons — react + delete */}
+                    {/* Desktop Hover Actions */}
                     <div className={cn(
                         "hidden md:flex shrink-0 items-center gap-1 transition-all duration-200 z-50",
                         "opacity-0 group-hover:opacity-100"
