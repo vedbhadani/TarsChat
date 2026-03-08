@@ -1,4 +1,4 @@
-<![CDATA[<div align="center">
+<div align="center">
   <h1>💬 TarsChat</h1>
   <p><strong>A modern, real-time messaging application built with Next.js, Convex, and Clerk.</strong></p>
 
@@ -54,6 +54,7 @@
 
 ```
 tars-chat/
+│
 ├── convex/                      # Convex backend (serverless functions + schema)
 │   ├── schema.ts                # Database schema (6 tables)
 │   ├── users.ts                 # User sync & online status mutations/queries
@@ -63,37 +64,34 @@ tars-chat/
 │   ├── typing.ts                # Real-time typing indicator management
 │   └── _generated/              # Auto-generated Convex client code
 │
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx           # Root layout: Clerk + Convex providers, fonts, metadata
-│   │   ├── page.tsx             # Landing / login page (public)
-│   │   ├── globals.css          # Global styles + Tailwind imports + design tokens
-│   │   ├── chat/
-│   │   │   └── page.tsx         # Main chat view (sidebar + empty state)
-│   │   └── conversation/
-│   │       └── [id]/
-│   │           └── page.tsx     # Active conversation view (sidebar + chat window)
+├── src/                         # Frontend & Business Logic
+│   ├── app/                     # Next.js App Router (pages, layout, globals)
+│   │   ├── layout.tsx           # Root layout: Clerk + Convex providers
+│   │   ├── page.tsx             # Landing / login page
+│   │   ├── globals.css          # Global styles & design tokens
+│   │   ├── chat/                # Sidebar & empty state views
+│   │   └── conversation/        # Active chat windows [id]
 │   │
-│   ├── components/
-│   │   ├── ChatSidebar.tsx      # Sidebar: tabs, user list, conversation list, group modal
-│   │   ├── ChatWindow.tsx       # Message feed, pagination, header, typing indicator
-│   │   ├── MessageBubble.tsx    # Single message bubble with reactions + grouping
-│   │   ├── MessageInput.tsx     # Textarea with send button + typing indicator hook
-│   │   ├── ConversationList.tsx # Rendered list of active conversations
-│   │   ├── UserList.tsx         # List of all users for starting new chats
-│   │   ├── SearchBar.tsx        # Controlled search input component
-│   │   ├── NewGroupModal.tsx    # Modal to create a new group conversation
-│   │   ├── ErrorBoundary.tsx    # React class error boundary with recovery UI
-│   │   └── providers/
-│   │       └── ConvexClientProvider.tsx  # Convex React client wrapper
+│   ├── components/              # Reusable UI Components
+│   │   ├── ChatSidebar.tsx      # Sidebar navigation & lists
+│   │   ├── ChatWindow.tsx       # Message feed & header
+│   │   ├── MessageBubble.tsx    # WhatsApp-style bubble with reactions
+│   │   ├── MessageInput.tsx     # Textarea & typing logic
+│   │   ├── ConversationList.tsx # Active chat items
+│   │   ├── UserList.tsx         # User directory for DMs
+│   │   ├── SearchBar.tsx        # Search interface
+│   │   ├── NewGroupModal.tsx    # Group creation interface
+│   │   ├── ErrorBoundary.tsx    # Safety net for UI crashes
+│   │   └── providers/           # Context providers
 │   │
-│   ├── lib/
-│   │   ├── utils.ts             # cn(), timestamp formatters, text truncation
-│   │   └── convexClient.ts      # Convex URL constant + SyncableUser type
+│   ├── lib/                     # Utilities & Constants
+│   │   ├── utils.ts             # CN, formatters, truncation
+│   │   └── convexClient.ts      # Shared backend client
 │   │
 │   └── proxy.ts                 # Clerk middleware — route protection
+
+├── public/                      # Static assets & assets
 │
-├── public/                      # Static assets (SVGs)
 ├── package.json
 ├── tsconfig.json
 ├── next.config.ts
@@ -168,7 +166,7 @@ erDiagram
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/tars-chat.git
+git clone https://github.com/vedbhadani/TarsChat.git
 cd tars-chat
 ```
 
@@ -192,7 +190,8 @@ CONVEX_DEPLOYMENT=dev:<your-deployment-name>
 NEXT_PUBLIC_CONVEX_URL=https://<your-deployment>.convex.cloud
 ```
 
-> **Tip:** The Convex variables are automatically set when you run `npx convex dev` for the first time.
+> [!TIP]
+> The Convex variables are automatically set when you run `npx convex dev` for the first time.
 
 ### 4. Start the Convex dev server
 
@@ -250,7 +249,7 @@ TarsChat uses a **warm earthy palette** inspired by premium craftsmanship:
 ## 🔒 Authentication & Authorization
 
 - **Provider:** [Clerk](https://clerk.com) — handles sign-in, sign-up, session management, and user profiles.
-- **Middleware:** [`src/proxy.ts`](src/proxy.ts) protects `/chat` and `/conversation` routes. The landing page (`/`) is public.
+- **Middleware:** [`src/middleware.ts`](#) protects `/chat` and `/conversation` routes. The landing page (`/`) is public.
 - **User Sync:** On login, the `createUserIfNotExists` mutation syncs the Clerk user to the Convex `users` table (upsert pattern).
 
 ---
@@ -321,4 +320,4 @@ This project is open source and available under the [MIT License](LICENSE).
 <div align="center">
   <strong>Built with ❤️ using Next.js, Convex, and Clerk</strong>
 </div>
-]]>
+
