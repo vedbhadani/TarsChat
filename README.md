@@ -303,20 +303,6 @@ npx convex deploy
 
 This deploys your Convex functions to a production instance. Update `NEXT_PUBLIC_CONVEX_URL` accordingly.
 
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
----
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
-
 <div align="center">
   <strong>Built with ❤️ using Next.js, Convex, and Clerk</strong>
 </div>
